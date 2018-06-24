@@ -104,6 +104,9 @@ public:
    * @param meas_package The measurement at k+1
    */
   void UpdateRadar(MeasurementPackage meas_package);
+
+private:
+  double normalizeAngle(double angle);
 };
 
 #endif /* UKF_H */
