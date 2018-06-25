@@ -27,7 +27,7 @@ UKF::UKF() {
   P_ = MatrixXd::Identity(5,5);
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
-  std_a_ = 0.2;
+  std_a_ = 2.0;
 
   // Process noise standard deviation yaw acceleration in rad/s^2
   std_yawdd_ = 0.2;
@@ -98,7 +98,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
       float ro_dot = meas_package.raw_measurements_[2];
       float px = ro * cos(theta);
       float py = ro * sin(theta);
-      x_ << px, py, 0.1, 0.01, 0.001;
+      x_ << px, py, 0, 0, 0;
     }
     else if (meas_package.sensor_type_ == MeasurementPackage::LASER) {
       x_ << meas_package.raw_measurements_[0], meas_package.raw_measurements_[1], 0, 0, 0;
@@ -326,6 +326,14 @@ void UKF::UpdateLidar(MeasurementPackage meas_package) {
   //update state mean and covariance matrix
   x_ = x_ + K * z_diff;
   P_ = P_ - K*S*K.transpose();
+
+  // compute NIS
+  double nis = z_diff.transpose() * S.inverse() * z_diff;
+  n_lidar_++;
+  if (nis > 7.815) {
+    n_lidar_005++;
+  }
+  cout << "Lidar NIS (>7.815): " << 1.0 * n_lidar_005 / n_lidar_ << endl;
 }
 
 /**
@@ -428,6 +436,14 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
   //update state mean and covariance matrix
   x_ = x_ + K * z_diff;
   P_ = P_ - K*S*K.transpose();
+
+  // compute NIS
+  double nis = z_diff.transpose() * S.inverse() * z_diff;
+  n_radar_++;
+  if (nis > 7.815) {
+    n_radar_005++;
+  }
+  cout << "Radar NIS (>7.815): " << 1.0*n_radar_005 / n_radar_ << endl;
 }
 
 double UKF::normalizeAngle(double angle) {

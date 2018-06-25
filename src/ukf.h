@@ -67,6 +67,12 @@ public:
   ///* Sigma point spreading parameter
   double lambda_;
 
+  ///* counter
+  int n_radar_ = 0;
+  int n_lidar_ = 0;
+  int n_radar_005 = 0;
+  int n_lidar_005 = 0;
+
   ///* debug
   int counter = 0;
 
